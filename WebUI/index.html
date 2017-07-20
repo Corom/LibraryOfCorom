@@ -18,21 +18,22 @@
     <script src="hocr-proofreader.js"></script>
     <script src="main.js"></script>
 
-
     <script>
+        /**************  UPDATE THESE CONSTANTS WITH YOUR SETTINGS  **************/
+
         var libraryConfig = {
             service: "<NAME OF AZURE SEARCH SERVICE>",
             queryKey: "<QUERY KEY TO AZURE SEARCH INDEX>",
             index: "<NAME OF AZURE SEARCH INDEX>"
         };
+
+        /*************************************************************************/
     </script>
 
     <title>Enriched Data Library</title>
 </head>
 
 <body>
-
-
 
     <style>
         div.stretchy-wrapper {
@@ -90,7 +91,7 @@
                     </button>
                     <div class="row">
                         <div class="col-md-2 pagelabel">
-                            <a class="navbar-brand pagelabel" href="https://github.com/EvanBoyle/AzSearch.js">Enriched Library</a>
+                            <a class="navbar-brand pagelabel" href="https://github.com/Corom/LibraryOfCorom">Enriched Library</a>
                         </div>
                         <div id="searchBox" class="col-mid-8 col-sm-8 col-xs-6"></div>
                         <div id="navbar" class="navbar-collapse collapse">
@@ -143,6 +144,9 @@
     function showDocument(index)
     {
         result = lastResults[index];
+
+        // For some reason on the Edge browser the cached current page causes a security exception so we make sure it is null
+        hocrProofreader.currentPage = null;
 
         hocrProofreader.setHocr(result.scan_metadata, "", result.pageNum, result.keywords);
         hocrProofreader.setZoom('page-full');

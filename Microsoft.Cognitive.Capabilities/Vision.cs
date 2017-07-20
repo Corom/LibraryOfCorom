@@ -37,9 +37,14 @@ namespace Microsoft.Cognitive.Capabilities
             };
         }
 
-        public async Task<OcrHWResult> GetText(Stream stream)
+        public Task<OcrHWResult> GetText(string url)
         {
-            var visionResult = await visionClient.RecognizeTextAsync(stream, "en", false);
+            return GetText(null, url);
+        }
+
+        public async Task<OcrHWResult> GetText(Stream stream, string url = null)
+        {
+            var visionResult = await (stream != null ? visionClient.RecognizeTextAsync(stream, "en", false) :  visionClient.RecognizeTextAsync(url, "en", false));
 
             var lines = visionResult.Regions.SelectMany(r => r.Lines).Select(l =>
 

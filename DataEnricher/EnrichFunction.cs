@@ -38,22 +38,25 @@ namespace DataEnricher
 #endif
         /**************  UPDATE THESE CONSTANTS WITH YOUR SETTINGS  **************/
 
+        // Use handwriting API for OCR otherwise uses standard OCR which works better with text
+        internal const bool USE_HANDWRITING_OCR = true;
+
         // Azure Blob Storage used to store extracted page images
-        const string IMAGE_AZURE_STORAGE_ACCOUNT_NAME = "";
-        const string IMAGE_BLOB_STORAGE_ACCOUNT_KEY = "";
-        const string IMAGE_BLOB_STORAGE_CONTAINER = "";
-        
+        internal const string IMAGE_AZURE_STORAGE_ACCOUNT_NAME = "";
+        internal const string IMAGE_BLOB_STORAGE_ACCOUNT_KEY = "";
+        internal const string IMAGE_BLOB_STORAGE_CONTAINER = "";
+
         // Cognitive Services Vision API used to process images
-        const string VISION_API_KEY = "";
-        
+        internal const string VISION_API_KEY = "";
+
         // AzureML Webservice used for Entity Extraction
-        const string AZURE_ML_WEBSERVICE_URL = "";
-        const string AZURE_ML_WEBSERVICE_API_KEY = "";
-        
+        internal const string AZURE_ML_WEBSERVICE_URL = "";
+        internal const string AZURE_ML_WEBSERVICE_API_KEY = "";
+
         // Azure Search service used to index documents
-        const string AZURE_SEARCH_SERVICE_NAME = "";
-        const string AZURE_SEARCH_ADMIN_KEY = "";
-        const string AZURE_SEARCH_INDEX_NAME = "";
+        internal const string AZURE_SEARCH_SERVICE_NAME = "";
+        internal const string AZURE_SEARCH_ADMIN_KEY = "";
+        internal const string AZURE_SEARCH_INDEX_NAME = "";
 
         /*************************************************************************/
 
@@ -88,12 +91,12 @@ namespace DataEnricher
             {
                 // Send image to Vision API handwriting service
                 var imageUrl = await blobContainer.UploadToBlob(page, $"{name}/{searchDocument.PageCount}");
-                var hwResult = await visionClient.GetHandwritingText(imageUrl);
+                var hwResult = await (USE_HANDWRITING_OCR ?  visionClient.GetHandwritingText(imageUrl) : visionClient.GetText(imageUrl));
                 var visionResult = await visionClient.GetVision(imageUrl);
-                searchDocument.AddPage(hwResult.Concat(visionResult), imageUrl);
-                searchDocument.Racy = visionResult.RacyScore * 1000;
+                searchDocument.Racy = visionResult.RacyScore * 1000;  // make the score a bigger number since the AzSearch libary range facet only uses increments of 1
                 searchDocument.Adult = visionResult.AdultScore * 1000;
                 searchDocument.Tags = visionResult.Tags.ToList();
+                searchDocument.AddPage(hwResult.Concat(visionResult), imageUrl);
             }
 
             // Extract Named entities and add them to the document
