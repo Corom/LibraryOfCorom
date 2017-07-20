@@ -30,7 +30,6 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebUI", "WebUI\", "{6070891
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{A633EC1D-5057-482D-A39D-366A8BF1A61E}"
 	ProjectSection(SolutionItems) = preProject
-		library-of-corom.jpg = library-of-corom.jpg
 		README.md = README.md
 	EndProjectSection
 EndProject
