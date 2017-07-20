@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+          crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/azsearch.js/0.0.13/AzSearch.css">
+
+    <!-- hocr Proofreader -->
+    <link rel="stylesheet" href="fonts.css" />
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="hocr-proofreader.css" />
+    <script src="hocr-proofreader.js"></script>
+    <script src="main.js"></script>
+
+
+    <script>
+        var libraryConfig = {
+            service: "<NAME OF AZURE SEARCH SERVICE>",
+            queryKey: "<QUERY KEY TO AZURE SEARCH INDEX>",
+            index: "<NAME OF AZURE SEARCH INDEX>"
+        };
+    </script>
+
+    <title>Enriched Data Library</title>
+</head>
+
+<body>
+
+
+
+    <style>
+        div.stretchy-wrapper {
+            width: 100%;
+            position: relative;
+        }
+
+            div.stretchy-wrapper > div {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+
+        .highlight {
+            opacity: 0.5;
+            filter: alpha(opacity=30);
+            background-color: yellow;
+        }
+    </style>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" style="width: 98%; height: 95%;" role="document">
+            <div class="modal-content" style="height: 100%;">
+                <div class="modal-body" style="width: 100%; height: 100%;">
+                    <div class="toolbar">
+                        <button id="toggle-layout-image">Image/Text</button>
+                        <div class="separator"></div>
+                        <span>Zoom:</span>
+                        <button id="zoom-page-full">Full Page</button>
+                        <button id="zoom-page-width">Page Width</button>
+                        <button id="zoom-original">Original</button>
+                        <div class="separator"></div>
+                        <button id="button-save">Save</button>
+                    </div>
+                    <div id="layout-container" class="container" style="width: 70%;"></div>
+                    <div id="editor-container" class="container" style="width: 30%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app">
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#facetPanel" aria-expanded="false"
+                            aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <div class="row">
+                        <div class="col-md-2 pagelabel">
+                            <a class="navbar-brand pagelabel" href="https://github.com/EvanBoyle/AzSearch.js">Enriched Library</a>
+                        </div>
+                        <div id="searchBox" class="col-mid-8 col-sm-8 col-xs-6"></div>
+                        <div id="navbar" class="navbar-collapse collapse">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div id="facetPanel" class="col-sm-3 col-md-3 sidebar collapse">
+                    <ul class="nav nav-sidebar">
+                        <div className="panel panel-primary behclick-panel">
+                            <div id="peopleFacet"></div>
+                            <div id="placesFacet"></div>
+                            <div id="tagsFacet"></div>
+                            <div id="adultFilter"></div>
+                            <div id="racyFilter"></div>
+                        </div>
+                    </ul>
+                </div>
+                <div class="col-sm-9 col-sm-offset-3 col-md-9 col-md-offset-3 results_section">
+                    <div id="results" class="row placeholders" style="max-width: 900px; margin-left: auto; margin-right: auto;">
+                    </div>
+                    <div id="pager" class="row">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap core JavaScript
+            ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+                crossorigin="anonymous"></script>
+    </div>
+</body>
+<!-- Dependencies -->
+<script src="https://cdn.jsdelivr.net/react/15.5.0/react.min.js"></script>
+<script src="https://cdn.jsdelivr.net/react/15.5.0/react-dom.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/redux/3.6.0/redux.min.js"></script>
+<!-- Main -->
+<script src="https://cdn.jsdelivr.net/azsearch.js/0.0.13/AzSearch.bundle.js"></script>
+<script>
+
+    var lastResults;
+
+    function showDocument(index)
+    {
+        result = lastResults[index];
+
+        hocrProofreader.setHocr(result.scan_metadata, "", result.pageNum, result.keywords);
+        hocrProofreader.setZoom('page-full');
+        $('#myModal').modal('show');
+
+        // there is an issue with this UI in a model dialog where it wont scroll into view until after its made visible
+        if (result.pageNum)
+            $('#myModal').one('shown.bs.modal', function () {
+                hocrProofreader.editorIframe.contentDocument.body.children[result.pageNum].scrollIntoView({ behavior: "instant", block: "start" });
+            });
+
+    }
+
+    function getHocrMetadata(element)
+    {
+        var meta = {};
+        $(element).attr("title").split(";").map(function (e) { return e.trim(); }).forEach(function(e) {
+            var sections = e.split(" ")
+            var vals = [];
+            for (var i=1; i<sections.length; i++)
+            {
+                if (sections[i].substring(0,1) == '"' || sections[i].substring(0,1) == "'")
+                    vals.push(sections[i].substring(1, sections[i].length - 1));
+                else
+                    vals.push(Number(sections[i]));
+            }
+
+            meta[sections[0]] = vals.length == 1 ? vals[0] : vals;
+        });
+        return meta;
+    }
+
+
+    function OnSearch(searchState, postBody)
+    {
+        // add the facets to the search query for highlighting
+        for (var facet in searchState.facets.facets) {
+            var vals = searchState.facets.facets[facet].values;
+            for (var fv in vals)
+            {
+                if (vals[fv].selected)
+                    postBody.search += " " + fv;
+            }
+        }
+
+        return fetch("https://" + searchState.config.service + ".search.windows.net/indexes/" + searchState.config.index + "/docs/search?api-version=2016-09-01",
+            {
+                mode: "cors",
+                headers: {
+                    "api-key": "F86621A8D3C3A3C90C36C31397E20683",
+                    "Content-Type": "application/json"
+                },
+                method: "POST",
+                body: JSON.stringify(postBody)
+            });
+    }
+
+
+    // Initialize and connect to your search service
+    var automagic = new AzSearch.Automagic(libraryConfig);
+    // add a results view using the template defined above
+    automagic.addResults("results", { count: true });
+    // Adds a pager control << 1 2 3 ... >>
+    automagic.addPager("pager");
+
+    automagic.addSearchBox("searchBox");
+
+    automagic.addCheckboxFacet("peopleFacet", "People", "collection");
+    automagic.addCheckboxFacet("placesFacet", "Places", "collection");
+    automagic.addCheckboxFacet("tagsFacet", "tagsList", "collection");
+    automagic.addRangeFacet("racyFilter", "racyScore", "number", 0, 1000);
+    automagic.addRangeFacet("adultFilter", "adultScore", "number", 0, 1000);
+
+
+    // get hightlight snippets for text
+    automagic.store.updateSearchParameters({ highlight: "scan_text" });
+
+    //$("#facetPanel").change(OnSearch);
+    automagic.store.setSearchCallback(OnSearch);
+
+    var resultTemplate =
+       `<div class="stretchy-wrapper" style="padding-bottom: {{{image.previewAspectRatio}}}%;{{{extraStyles}}}">
+           <div class ="resultDescription" style="border: solid; border-width: 2px; background-image:url('{{{image.url}}}'); background-size:100%; background-position-y:{{{image.topPercent}}}%; overflow: hidden;" onclick="showDocument({{{idx}}})" title="Racy={{{racyScore}}}  Adult={{{adultScore}}}">
+             {{#highlight_words}}
+                <div class="highlight" style="position: relative; width: {{{widthPercent}}}%; height: {{{heightPercent}}}%; left: {{{leftPercent}}}%; top: {{{topPercent}}}%;"></div>
+             {{/highlight_words}}
+           </div>
+       </div>`;
+
+    // add a results view, updates parameters to include count, uses the above template
+    automagic.addResults("results", { count: true }, resultTemplate);
+
+
+
+
+    // add a resultsProcessor to more easily format the results display
+    var resultsProcessor = function (results) {
+        var idx = 0;
+        return lastResults = results.map(function (result) {
+
+            result.idx = idx;
+            idx++;
+
+            result.extraStyles = "";
+            var viewAspectRatio = .2;
+            if (!result['@search.highlights']) {
+                var metadata = $(result.scan_metadata);
+                var pageMeta = getHocrMetadata(metadata.filter(".ocr_page")[0]);
+                result.image = {
+                    url: pageMeta.image,
+                    width: pageMeta.bbox[2],
+                    height: pageMeta.bbox[3],
+                    previewAspectRatio: viewAspectRatio * 100,
+                    topPercent: 10,
+                };
+                result.pageNum = pageMeta.ppageno;
+                return result;
+            }
+
+            var summary = result['@search.highlights'].scan_text[0];
+
+            var keyword = summary.split(" ").find(function (w) { return w.indexOf("<em>") > -1; })
+            keyword = keyword.replace("<em>", "").replace("</em>", "");
+
+            var metadata = $(result.scan_metadata);
+            var keywordNodes = metadata.find("span[class='ocrx_word']").filter(function () { return $(this).text() == keyword; });
+            var keywordNode = keywordNodes[0];
+
+            var keywordMeta = getHocrMetadata(keywordNode);
+            var pageMeta = getHocrMetadata($(keywordNode).parents('.ocr_page'));
+
+            result.keywords = keywordNodes.map(function () { return this.innerText; });
+            result.pageNum = pageMeta.ppageno;
+
+
+
+
+
+            result.image = {
+                url: pageMeta.image,
+                width: pageMeta.bbox[2],
+                height: pageMeta.bbox[3],
+                previewAspectRatio: viewAspectRatio * 100
+            };
+
+            if (keywordMeta.bbox) {
+
+                highlight_word = {
+                    left: keywordMeta.bbox[0],
+                    top: keywordMeta.bbox[1],
+                    width: keywordMeta.bbox[2] - keywordMeta.bbox[0],
+                    height: keywordMeta.bbox[3] - keywordMeta.bbox[1]
+                };
+
+                var imageAspectRatio = result.image.height / result.image.width;
+                var aRatio = viewAspectRatio / imageAspectRatio;
+
+                // show 2 lines above the highlighted word, but make sure not to offset past top of the document
+                var viewOffset = highlight_word.height * 2;
+                if (highlight_word.top - viewOffset < 0)
+                    viewOffset = -result.highlight_word.top;
+
+                result.image.topPercent = (highlight_word.top - viewOffset) / (result.image.height - (result.image.height * aRatio)) * 100;
+
+                highlight_word.heightPercent = highlight_word.height / result.image.height / aRatio * 100;
+                highlight_word.topPercent = viewOffset / (result.image.height - (highlight_word.height * aRatio)) / aRatio * 100;
+
+                highlight_word.widthPercent = highlight_word.width / result.image.width * 100;
+                highlight_word.leftPercent = highlight_word.left / result.image.width * 100;
+
+                result.highlight_words = [highlight_word];
+            }
+            else
+            {
+                result.image.topPercent = 50;
+                result.image.previewAspectRatio = 40;
+                result.extraStyles = "; max-width: 600px; margin-left: auto; margin-right: auto";
+            }
+
+
+            return result;
+        });
+    };
+    automagic.store.setResultsProcessor(resultsProcessor);
+
+
+</script>
+<style>
+
+</style>
+
+</html>
