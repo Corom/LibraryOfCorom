@@ -38,13 +38,12 @@ namespace DataEnricher
 #endif
         /**************  UPDATE THESE CONSTANTS WITH YOUR SETTINGS  **************/
 
-        // Use handwriting API for OCR otherwise uses standard OCR which works better with text
-        internal const bool USE_HANDWRITING_OCR = true;
+        // Use handwriting API for OCR otherwise uses standard OCR which works better with printed text
+        internal const bool USE_HANDWRITING_OCR = false;
 
         // Azure Blob Storage used to store extracted page images
         internal const string IMAGE_AZURE_STORAGE_ACCOUNT_NAME = "";
         internal const string IMAGE_BLOB_STORAGE_ACCOUNT_KEY = "";
-        internal const string IMAGE_BLOB_STORAGE_CONTAINER = "";
 
         // Cognitive Services Vision API used to process images
         internal const string VISION_API_KEY = "";
@@ -56,9 +55,13 @@ namespace DataEnricher
         // Azure Search service used to index documents
         internal const string AZURE_SEARCH_SERVICE_NAME = "";
         internal const string AZURE_SEARCH_ADMIN_KEY = "";
-        internal const string AZURE_SEARCH_INDEX_NAME = "";
 
         /*************************************************************************/
+
+        // settings you can change if you want but the defaults should work too
+        internal const string IMAGE_BLOB_STORAGE_CONTAINER = "extractedimages";
+        internal const string LIBRARY_BLOB_STORAGE_CONTAINER = "library";
+        internal const string AZURE_SEARCH_INDEX_NAME = "enrichedindex";
 
         static ImageStore blobContainer;
         static EntityExtractor entityExtractor;
@@ -101,8 +104,8 @@ namespace DataEnricher
 
             // Extract Named entities and add them to the document
             var entities = await entityExtractor.Extract(searchDocument.Text);
-            searchDocument.PeopleFacet = entities.Where(e => e.EntityType == EntityType.Person).Select(e => e.Name).Distinct().ToArray();
-            searchDocument.PlacesFacet = entities.Where(e => e.EntityType == EntityType.Location).Select(e => e.Name).Distinct().ToArray();
+            searchDocument.People = entities.Where(e => e.EntityType == EntityType.Person).Select(e => e.Name).Distinct().ToArray();
+            searchDocument.Places = entities.Where(e => e.EntityType == EntityType.Location).Select(e => e.Name).Distinct().ToArray();
 
             // push document to the azure search index
             var batch = IndexBatch.MergeOrUpload(new[] { searchDocument });

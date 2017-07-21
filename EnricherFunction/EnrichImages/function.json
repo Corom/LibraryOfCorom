@@ -1,0 +1,11 @@
+﻿{
+  "disabled": false,
+  "bindings": [
+    {
+      "name": "blobStream",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "library/{name}"
+    }
+  ]
+}

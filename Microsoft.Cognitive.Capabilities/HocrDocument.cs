@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Search.Models;
+﻿using Microsoft.Azure.Search;
+using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace Microsoft.Cognitive.Capabilities
     /// <summary>
     /// Indexed representation of a scanned document that uses the HOCR standard for encoding word position metadata of OCR documents 
     /// </summary>
+    [SerializePropertyNamesAsCamelCase]
     public class HOCRDocument
     {
         StringWriter metadata = new StringWriter();
@@ -74,36 +76,45 @@ namespace Microsoft.Cognitive.Capabilities
 
         // Fields that are in the index
         private string id;
-        [JsonProperty("id")]
+
+        [System.ComponentModel.DataAnnotations.Key]
+        [IsFilterable]
         public string Id { get { return id; } set { id = value.Replace(".", "_"); } }
 
         [JsonIgnore]
         public int PageCount { get { return pageCount; } }
 
-        [JsonProperty("scan_metadata")]
+        [IsSearchable]
         public string Metadata
         {
             get { return metadata.ToString() + metadata.NewLine + "</body></html>"; }
         }
 
-        [JsonProperty("scan_text")]
+        [IsRetrievable(false)]
+        [IsSearchable]
         public string Text
         {
             get { return text.ToString(); }
         }
 
-        [JsonProperty("People")]
-        public string[] PeopleFacet { get; set; }
-        [JsonProperty("Places")]
-        public string[] PlacesFacet { get; set; }
+        [IsFilterable]
+        [IsFacetable]
+        public string[] People { get; set; }
 
-        [JsonProperty("tagsList2")]
+        [IsFilterable]
+        [IsFacetable]
+        public string[] Places { get; set; }
+
+        [IsFilterable]
+        [IsFacetable]
         public List<string> Tags { get; set; } = new List<string>();
 
-        [JsonProperty("adultScore")]
+        [IsFilterable]
+        [IsFacetable]
         public double Adult { get; set; }
 
-        [JsonProperty("racyScore")]
+        [IsFilterable]
+        [IsFacetable]
         public double Racy { get; set; }
 
     }

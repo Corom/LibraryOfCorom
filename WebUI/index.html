@@ -24,7 +24,7 @@
         var libraryConfig = {
             service: "<NAME OF AZURE SEARCH SERVICE>",
             queryKey: "<QUERY KEY TO AZURE SEARCH INDEX>",
-            index: "<NAME OF AZURE SEARCH INDEX>"
+            index: "enrichedindex"
         };
 
         /*************************************************************************/
@@ -148,7 +148,7 @@
         // For some reason on the Edge browser the cached current page causes a security exception so we make sure it is null
         hocrProofreader.currentPage = null;
 
-        hocrProofreader.setHocr(result.scan_metadata, "", result.pageNum, result.keywords);
+        hocrProofreader.setHocr(result.metadata, "", result.pageNum, result.keywords);
         hocrProofreader.setZoom('page-full');
         $('#myModal').modal('show');
 
@@ -214,22 +214,22 @@
 
     automagic.addSearchBox("searchBox");
 
-    automagic.addCheckboxFacet("peopleFacet", "People", "collection");
-    automagic.addCheckboxFacet("placesFacet", "Places", "collection");
-    automagic.addCheckboxFacet("tagsFacet", "tagsList", "collection");
-    automagic.addRangeFacet("racyFilter", "racyScore", "number", 0, 1000);
-    automagic.addRangeFacet("adultFilter", "adultScore", "number", 0, 1000);
+    automagic.addCheckboxFacet("peopleFacet", "people", "collection");
+    automagic.addCheckboxFacet("placesFacet", "places", "collection");
+    automagic.addCheckboxFacet("tagsFacet", "tags", "collection");
+    automagic.addRangeFacet("racyFilter", "racy", "number", 0, 1000);
+    automagic.addRangeFacet("adultFilter", "adult", "number", 0, 1000);
 
 
     // get hightlight snippets for text
-    automagic.store.updateSearchParameters({ highlight: "scan_text" });
+    automagic.store.updateSearchParameters({ highlight: "text" });
 
     //$("#facetPanel").change(OnSearch);
     automagic.store.setSearchCallback(OnSearch);
 
     var resultTemplate =
        `<div class="stretchy-wrapper" style="padding-bottom: {{{image.previewAspectRatio}}}%;{{{extraStyles}}}">
-           <div class ="resultDescription" style="border: solid; border-width: 2px; background-image:url('{{{image.url}}}'); background-size:100%; background-position-y:{{{image.topPercent}}}%; overflow: hidden;" onclick="showDocument({{{idx}}})" title="Racy={{{racyScore}}}  Adult={{{adultScore}}}">
+           <div class ="resultDescription" style="border: solid; border-width: 2px; background-image:url('{{{image.url}}}'); background-size:100%; background-position-y:{{{image.topPercent}}}%; overflow: hidden;" onclick="showDocument({{{idx}}})" title="Racy={{{racy}}}  Adult={{{adult}}}">
              {{#highlight_words}}
                 <div class="highlight" style="position: relative; width: {{{widthPercent}}}%; height: {{{heightPercent}}}%; left: {{{leftPercent}}}%; top: {{{topPercent}}}%;"></div>
              {{/highlight_words}}
@@ -253,7 +253,7 @@
             result.extraStyles = "";
             var viewAspectRatio = .2;
             if (!result['@search.highlights']) {
-                var metadata = $(result.scan_metadata);
+                var metadata = $(result.metadata);
                 var pageMeta = getHocrMetadata(metadata.filter(".ocr_page")[0]);
                 result.image = {
                     url: pageMeta.image,
@@ -266,12 +266,12 @@
                 return result;
             }
 
-            var summary = result['@search.highlights'].scan_text[0];
+            var summary = result['@search.highlights'].text[0];
 
             var keyword = summary.split(" ").find(function (w) { return w.indexOf("<em>") > -1; })
             keyword = keyword.replace("<em>", "").replace("</em>", "");
 
-            var metadata = $(result.scan_metadata);
+            var metadata = $(result.metadata);
             var keywordNodes = metadata.find("span[class='ocrx_word']").filter(function () { return $(this).text() == keyword; });
             var keywordNode = keywordNodes[0];
 

@@ -33,6 +33,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{33AD0EE8-D99B-4E14-8CD9-3F56ABEF97A2}") = "EnricherFunction", "EnricherFunction\EnricherFunction.funproj", "{01C3C9E3-6F6E-44B3-98B2-F48B355CEADE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B5726A25-EE44-4A4D-80D9-5E291464E148} = {B5726A25-EE44-4A4D-80D9-5E291464E148}
+		{91E17D90-BC6F-4097-A118-00AC2D18ADF3} = {91E17D90-BC6F-4097-A118-00AC2D18ADF3}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +57,10 @@ Global
 		{60708919-23B1-4FA5-B707-34A609823C19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60708919-23B1-4FA5-B707-34A609823C19}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{60708919-23B1-4FA5-B707-34A609823C19}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{01C3C9E3-6F6E-44B3-98B2-F48B355CEADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01C3C9E3-6F6E-44B3-98B2-F48B355CEADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01C3C9E3-6F6E-44B3-98B2-F48B355CEADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01C3C9E3-6F6E-44B3-98B2-F48B355CEADE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
