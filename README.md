@@ -38,8 +38,8 @@ The data pipeline is as follows:
 ### Prerequisites
 1. Azure Subscription you can access. All services can use the free teirs for this demo (with the exeption of Azure Storage)
 2. A Microsoft account with access to Microsoft Flow (comes with Office 365), otherwise use Azure Logic Apps which is pretty much the same thing.
-3. Visual Studio 2015 with [tools for Azure Functions](https://blogs.msdn.microsoft.com/webdev/2016/12/01/visual-studio-tools-for-azure-functions/) installed.
-4. Basic familiarity with using the Azure Portal and cloning and compiling code from github
+3. [Visual Studio 2015](https://www.visualstudio.com/downloads/) with [tools for Azure Functions](https://blogs.msdn.microsoft.com/webdev/2016/12/01/visual-studio-tools-for-azure-functions/) installed.
+4. Basic familiarity with using the [Azure Portal](https://portal.azure.com) and cloning and compiling code from github
 
 
 
@@ -100,3 +100,9 @@ The data pipeline is as follows:
 
    This flow automatically adds the the library pictures sent as attachments to emails send to a Outlook.com account.
    ![OneDrive Flow](images/outlook-flow.jpg)
+
+### Publish your Web Application
+
+9. In Visual Studio right click the WebUI project and select publish.  You can create a new Azure Web App from Visual
+   studio or you can do it in the Azure portal.  This application will work well on a free app service plan,
+   or you can use the same app service plan as your function app if you created one earlier.

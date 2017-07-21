@@ -27,6 +27,8 @@ namespace DataEnricher
                 {
                     Console.WriteLine("Initializing Services");
                     InitializeServices();
+
+                    Console.WriteLine("Services have been successfully Initialized");
                 }
                 else
                 {
@@ -38,10 +40,15 @@ namespace DataEnricher
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("An Error has occured: " + e.ToString());
             }
+
+            Console.WriteLine();
+            Console.WriteLine("Done.");
+            Console.WriteLine("Press enter to exit");
+            Console.ReadLine();
         }
 
 
@@ -52,7 +59,7 @@ namespace DataEnricher
             blobClient.GetContainerReference(EnrichFunction.IMAGE_BLOB_STORAGE_CONTAINER).CreateIfNotExists(BlobContainerPublicAccessType.Blob);
             blobClient.GetContainerReference(EnrichFunction.LIBRARY_BLOB_STORAGE_CONTAINER).CreateIfNotExists(BlobContainerPublicAccessType.Off);
 
-
+            // create the index if needed
             var serviceClient = new SearchServiceClient(EnrichFunction.AZURE_SEARCH_SERVICE_NAME, new SearchCredentials(EnrichFunction.AZURE_SEARCH_ADMIN_KEY));
             if (!serviceClient.Indexes.List().Indexes.Any(i => i.Name == EnrichFunction.AZURE_SEARCH_INDEX_NAME))
             {
@@ -60,16 +67,46 @@ namespace DataEnricher
                 {
                     Name = EnrichFunction.AZURE_SEARCH_INDEX_NAME,
                     Fields = FieldBuilder.BuildForType<HOCRDocument>(),
-                    CorsOptions = new CorsOptions() {
+                    CorsOptions = new CorsOptions()
+                    {
                         AllowedOrigins = new[] { "*" }
                     }
                 };
 
                 serviceClient.Indexes.CreateOrUpdate(definition);
             }
+
+            // test the pipeline and index
+            Console.WriteLine("Sending a test image through the pipeline");
+            using (var file = File.OpenRead(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test-image.jpg")))
+            {
+                EnrichFunction.Run(file, "TEST_IMAGE", log).Wait();
+            }
+
+            Console.WriteLine("Querying the test image");
+            var indexClient = serviceClient.Indexes.GetClient(EnrichFunction.AZURE_SEARCH_INDEX_NAME);
+            var results = indexClient.Documents.Search("ABC12345XYZ", new SearchParameters()
+            {
+                Facets = new[] { "tags", "people", "places", "adult", "racy" },
+                HighlightFields = new[] { "text" },
+            });
+
+            // TODO: Add some additional validations for fields
+            if (results.Results.Count > 0)
+                Console.WriteLine("Item found in index");
+            else
+                Console.WriteLine("Item missing from index");
+
+            Console.WriteLine("Delete the test item");
+            var deleteResult = indexClient.Documents.Index(IndexBatch.Delete("id", new[] { "TEST_IMAGE" }));
+
+            if (deleteResult.Results.Count > 0)
+                Console.WriteLine("Item deleted from the index");
+            else
+                Console.WriteLine("could not delete the item");
         }
 
-        
+
 
         public class ConsoleLogger : TraceMonitor
         {
