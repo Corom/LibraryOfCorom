@@ -106,3 +106,7 @@ The data pipeline is as follows:
 9. In Visual Studio right click the WebUI project and select publish.  You can create a new Azure Web App from Visual
    studio or you can do it in the Azure portal.  This application will work well on a free app service plan,
    or you can use the same app service plan as your function app if you created one earlier.
+
+10. You can easily customize the UI by modifying the index.html to meet your needs.  The UI is generated using the
+    [AzSearch.js](https://github.com/Yahnoosh/AzSearch.js) library and it takes [very little code](https://github.com/Yahnoosh/AzSearch.js#basic-usage)
+    to change what is shown in the search interface.
