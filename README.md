@@ -80,7 +80,8 @@ The data pipeline is as follows:
    >*DataEnricher.exe c:\myimages*
    
    You an also enable images to be uploaded directly from the UI by setting the storage connection string in the html file, but see the security note
-   in the code before publishing it to the internet.
+   in the code before publishing it to the internet.  Also you will need to enable CORS on your storage service in the Azure portal for this to work.
+   The CORS rule should specify all http methods, have a TTL of 500, and use "*" in the remaining fields.
    
    To run the UI right click WebUI\index.html in Visual Studio and select *View in Browser*.
    In the UI Hit enter in the search box to see all content uploaded to the library.
