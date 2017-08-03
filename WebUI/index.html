@@ -10,6 +10,7 @@
           crossorigin="anonymous">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/azsearch.js/0.0.13/AzSearch.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 
     <!-- hocr Proofreader -->
     <link rel="stylesheet" href="fonts.css" />
@@ -17,6 +18,9 @@
     <link rel="stylesheet" href="hocr-proofreader.css" />
     <script src="hocr-proofreader.js"></script>
     <script src="main.js"></script>
+
+    <script src="azure-storage.common.min.js"></script>
+    <script src="azure-storage.blob.min.js"></script>
 
     <script>
         /**************  UPDATE THESE CONSTANTS WITH YOUR SETTINGS  **************/
@@ -53,6 +57,18 @@
             opacity: 0.5;
             filter: alpha(opacity=30);
             background-color: yellow;
+        }
+
+        #photoInput {
+            display: none;
+            z-index: 99999999;
+        }
+
+        .fa-camera {
+            color: white;
+            position: absolute;
+            top: 4px;
+            font-size: 24px;
         }
     </style>
 
@@ -94,6 +110,14 @@
                             <a class="navbar-brand pagelabel" href="https://github.com/Corom/LibraryOfCorom">Enriched Library</a>
                         </div>
                         <div id="searchBox" class="col-mid-8 col-sm-8 col-xs-6"></div>
+                        <div class="col-sm-2 col-md-2 pull-right">
+                            <form class="navbar-form" role="search">
+                                <div class="input-group">
+                                    <label onclick="promptUpload()"><i class="fa fa-camera" aria-hidden="true"></i></label>
+                                    <input type="file" class="form-control" id="photoInput" name="upload" accept="image/*" onchange="uploadPic()">
+                                </div>
+                            </form>
+                        </div>
                         <div id="navbar" class="navbar-collapse collapse">
 
                         </div>
@@ -332,6 +356,41 @@
     };
     automagic.store.setResultsProcessor(resultsProcessor);
 
+
+</script>
+
+<script>
+
+    
+    /**
+    *
+    *   UPDATE CONNECTION STRING
+    *
+    **/
+    var blobService = AzureStorage.createBlobService('<Azure storage connection string>');
+   
+
+    function uploadPic() {
+        var file = document.getElementById('photoInput').files[0];
+
+        var customBlockSize = file.size > 1024 * 1024 * 32 ? 1024 * 1024 * 4 : 1024 * 512;
+        blobService.singleBlobPutThresholdInBytes = customBlockSize;
+
+        var finishedOrError = false;
+        var speedSummary = blobService.createBlockBlobFromBrowserFile('library', file.name, file, { blockSize: customBlockSize }, function (error, result, response) {
+            finishedOrError = true;
+            if (error) {
+                console.error(error)
+                alert('Picture failed to upload, please try again.')
+            } else {
+                alert('Picture uploaded succesfull, processing now.')
+            }
+        });
+    }
+
+    function promptUpload() {
+        $("#photoInput").click();
+    }
 
 </script>
 <style>
