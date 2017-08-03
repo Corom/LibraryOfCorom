@@ -31,6 +31,12 @@
             index: "enrichedindex"
         };
 
+        // OPTIONAL: You can add a button to directly upload an image to your pipline by speciying the storage connection string below
+        // SECURITY NOTE:  However, if you set the connection string below you should not publish this to the public internet as it will
+        //                 the connection string which will allow anyone write access to your storage service 
+        var IMAGE_BLOB_STORAGE_CONNECTION_STRING = '<Azure storage connection string>'
+
+        
         /*************************************************************************/
     </script>
 
@@ -110,7 +116,7 @@
                             <a class="navbar-brand pagelabel" href="https://github.com/Corom/LibraryOfCorom">Enriched Library</a>
                         </div>
                         <div id="searchBox" class="col-mid-8 col-sm-8 col-xs-6"></div>
-                        <div class="col-sm-2 col-md-2 pull-right">
+                        <div id="takePicture" class="col-sm-2 col-md-2 pull-right" hidden>
                             <form class="navbar-form" role="search">
                                 <div class="input-group">
                                     <label onclick="promptUpload()"><i class="fa fa-camera" aria-hidden="true"></i></label>
@@ -361,13 +367,10 @@
 
 <script>
 
-    
-    /**
-    *
-    *   UPDATE CONNECTION STRING
-    *
-    **/
-    var blobService = AzureStorage.createBlobService('<Azure storage connection string>');
+    if (IMAGE_BLOB_STORAGE_CONNECTION_STRING && IMAGE_BLOB_STORAGE_CONNECTION_STRING != '<Azure storage connection string>')
+        document.getElementById("takePicture").hidden = false;
+   
+    var blobService = AzureStorage.createBlobService(IMAGE_BLOB_STORAGE_CONNECTION_STRING);
    
 
     function uploadPic() {

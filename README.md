@@ -79,6 +79,9 @@ The data pipeline is as follows:
    You can test the UI by running the DataEnricher project with a command line argument that points to a folder that contains some images to upload.
    >*DataEnricher.exe c:\myimages*
    
+   You an also enable images to be uploaded directly from the UI by setting the storage connection string in the html file, but see the security note
+   in the code before publishing it to the internet.
+   
    To run the UI right click WebUI\index.html in Visual Studio and select *View in Browser*.
    In the UI Hit enter in the search box to see all content uploaded to the library.
 
